@@ -18,6 +18,8 @@
 * RISCV Processor
   - This also  contains a simple RISC-V processor. Partially synthesized and in early stages of debugging in synthesis.
 
+* LegV8Synth
+  -This contains a simple Legv8 like processor, which synthesized for de10 lite with some warnings.
 
 
 
