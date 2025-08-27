@@ -1,0 +1,1451 @@
+{
+  "projectName": "LEGv8_Pipelined_Processor",
+  "parameters": {
+    "INSTR_WIDTH": 32,
+    "DATA_WIDTH": 64,
+    "PC_WIDTH": 64,
+    "REG_COUNT": 32,
+    "REG_ADDR_WIDTH": 5,
+    "MEM_ADDR_WIDTH": 12,
+    "IMEM_DEPTH": 1024,
+    "DMEM_DEPTH": 512,
+    "IMMEDIATE_WIDTH_I_TYPE": 9,
+    "IMMEDIATE_WIDTH_D_TYPE": 9,
+    "IMMEDIATE_WIDTH_CB_TYPE": 19,
+    "IMMEDIATE_WIDTH_B_TYPE": 26,
+    "OP_R_TYPE_ARITH": "32'b10001011000",
+    "OP_ADDI": "32'b10010001000",
+    "OP_LDUR": "32'b11111000010",
+    "OP_STUR": "32'b11111000000",
+    "OP_CBZ": "32'b10110100000",
+    "OP_B": "32'b00010100000",
+    "ALU_FUNC_ADD": "6'b100000",
+    "ALU_FUNC_SUB": "6'b100010",
+    "ALU_FUNC_AND": "6'b100100",
+    "ALU_FUNC_ORR": "6'b100101",
+    "ALU_OP_ADD": "3'b000",
+    "ALU_OP_SUB": "3'b001",
+    "ALU_OP_AND": "3'b010",
+    "ALU_OP_OR": "3'b011",
+    "ALU_OP_PASS_A": "3'b100",
+    "ALU_OP_PASS_B": "3'b101",
+    "ALU_SRC_REG": "1'b0",
+    "ALU_SRC_IMM": "1'b1",
+    "MEM_TO_REG_ALU_RES": "1'b0",
+    "MEM_TO_REG_MEM_DATA": "1'b1",
+    "BRANCH_TYPE_NONE": "2'b00",
+    "BRANCH_TYPE_UNCOND": "2'b01",
+    "BRANCH_TYPE_COND": "2'b10",
+    "PC_SRC_PC_PLUS_4": "2'b00",
+    "PC_SRC_BRANCH_TARGET": "2'b01",
+    "PC_SRC_JUMP_TARGET": "2'b10",
+    "NOP_INSTR": "32'h00000000"
+  },
+  "components": [
+    {
+      "name": "ProgramCounter",
+      "file": "program_counter.sv",
+      "description": "64-bit Program Counter (PC) module.",
+      "dependencies": [],
+      "status": "In Progress",
+      "interface": [
+        {
+          "name": "PC_WIDTH",
+          "direction": "parameter",
+          "width": "PC_WIDTH"
+        },
+        {
+          "name": "clk",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "rst_n",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "pc_write_enable",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "pc_next_val",
+          "direction": "input",
+          "width": "PC_WIDTH"
+        },
+        {
+          "name": "pc_out",
+          "direction": "output",
+          "width": "PC_WIDTH"
+        }
+      ]
+    },
+    {
+      "name": "InstructionMemory",
+      "file": "instruction_memory.sv",
+      "description": "Synthesizable ROM for instruction storage, initialized from a hex file.",
+      "dependencies": [],
+      "status": "Pending",
+      "interface": [
+        {
+          "name": "INSTR_WIDTH",
+          "direction": "parameter",
+          "width": "INSTR_WIDTH"
+        },
+        {
+          "name": "MEM_ADDR_WIDTH",
+          "direction": "parameter",
+          "width": "MEM_ADDR_WIDTH"
+        },
+        {
+          "name": "IMEM_DEPTH",
+          "direction": "parameter",
+          "width": "IMEM_DEPTH"
+        },
+        {
+          "name": "clk",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "addr",
+          "direction": "input",
+          "width": "MEM_ADDR_WIDTH"
+        },
+        {
+          "name": "instr_out",
+          "direction": "output",
+          "width": "INSTR_WIDTH"
+        }
+      ]
+    },
+    {
+      "name": "IF_ID_PipelineRegister",
+      "file": "if_id_pipeline_register.sv",
+      "description": "Pipeline register between IF and ID stages.",
+      "dependencies": [],
+      "status": "Verified",
+      "interface": [
+        {
+          "name": "PC_WIDTH",
+          "direction": "parameter",
+          "width": "PC_WIDTH"
+        },
+        {
+          "name": "INSTR_WIDTH",
+          "direction": "parameter",
+          "width": "INSTR_WIDTH"
+        },
+        {
+          "name": "clk",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "rst_n",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "stall",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "flush",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "pc_in",
+          "direction": "input",
+          "width": "PC_WIDTH"
+        },
+        {
+          "name": "instr_in",
+          "direction": "input",
+          "width": "INSTR_WIDTH"
+        },
+        {
+          "name": "pc_out",
+          "direction": "output",
+          "width": "PC_WIDTH"
+        },
+        {
+          "name": "instr_out",
+          "direction": "output",
+          "width": "INSTR_WIDTH"
+        }
+      ]
+    },
+    {
+      "name": "RegisterFile",
+      "file": "register_file.sv",
+      "description": "LEGv8 32-entry 64-bit register file.",
+      "dependencies": [],
+      "status": "Verified",
+      "interface": [
+        {
+          "name": "DATA_WIDTH",
+          "direction": "parameter",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "REG_COUNT",
+          "direction": "parameter",
+          "width": "REG_COUNT"
+        },
+        {
+          "name": "REG_ADDR_WIDTH",
+          "direction": "parameter",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "clk",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "rst_n",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "read_addr1",
+          "direction": "input",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "read_addr2",
+          "direction": "input",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "write_enable",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "write_addr",
+          "direction": "input",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "write_data",
+          "direction": "input",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "read_data1",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "read_data2",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        }
+      ]
+    },
+    {
+      "name": "SignExtend",
+      "file": "sign_extend.sv",
+      "description": "Module to sign-extend immediate values to 64-bit.",
+      "dependencies": [],
+      "status": "Pending",
+      "interface": [
+        {
+          "name": "DATA_WIDTH",
+          "direction": "parameter",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "IMMEDIATE_WIDTH_I_TYPE",
+          "direction": "parameter",
+          "width": "IMMEDIATE_WIDTH_I_TYPE"
+        },
+        {
+          "name": "IMMEDIATE_WIDTH_D_TYPE",
+          "direction": "parameter",
+          "width": "IMMEDIATE_WIDTH_D_TYPE"
+        },
+        {
+          "name": "IMMEDIATE_WIDTH_CB_TYPE",
+          "direction": "parameter",
+          "width": "IMMEDIATE_WIDTH_CB_TYPE"
+        },
+        {
+          "name": "IMMEDIATE_WIDTH_B_TYPE",
+          "direction": "parameter",
+          "width": "IMMEDIATE_WIDTH_B_TYPE"
+        },
+        {
+          "name": "instr_in",
+          "direction": "input",
+          "width": "INSTR_WIDTH"
+        },
+        {
+          "name": "imm_type_select",
+          "direction": "input",
+          "width": 2
+        },
+        {
+          "name": "extended_imm_out",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        }
+      ]
+    },
+    {
+      "name": "ControlUnit",
+      "file": "control_unit.sv",
+      "description": "Generates all control signals based on instruction opcode and function fields.",
+      "dependencies": [],
+      "status": "Verified",
+      "interface": [
+        {
+          "name": "INSTR_WIDTH",
+          "direction": "parameter",
+          "width": "INSTR_WIDTH"
+        },
+        {
+          "name": "OP_R_TYPE_ARITH",
+          "direction": "parameter",
+          "width": "OP_R_TYPE_ARITH"
+        },
+        {
+          "name": "OP_ADDI",
+          "direction": "parameter",
+          "width": "OP_ADDI"
+        },
+        {
+          "name": "OP_LDUR",
+          "direction": "parameter",
+          "width": "OP_LDUR"
+        },
+        {
+          "name": "OP_STUR",
+          "direction": "parameter",
+          "width": "OP_STUR"
+        },
+        {
+          "name": "OP_CBZ",
+          "direction": "parameter",
+          "width": "OP_CBZ"
+        },
+        {
+          "name": "OP_B",
+          "direction": "parameter",
+          "width": "OP_B"
+        },
+        {
+          "name": "ALU_FUNC_ADD",
+          "direction": "parameter",
+          "width": "ALU_FUNC_ADD"
+        },
+        {
+          "name": "ALU_FUNC_SUB",
+          "direction": "parameter",
+          "width": "ALU_FUNC_SUB"
+        },
+        {
+          "name": "ALU_FUNC_AND",
+          "direction": "parameter",
+          "width": "ALU_FUNC_AND"
+        },
+        {
+          "name": "ALU_FUNC_ORR",
+          "direction": "parameter",
+          "width": "ALU_FUNC_ORR"
+        },
+        {
+          "name": "ALU_OP_ADD",
+          "direction": "parameter",
+          "width": "ALU_OP_ADD"
+        },
+        {
+          "name": "ALU_OP_SUB",
+          "direction": "parameter",
+          "width": "ALU_OP_SUB"
+        },
+        {
+          "name": "ALU_OP_AND",
+          "direction": "parameter",
+          "width": "ALU_OP_AND"
+        },
+        {
+          "name": "ALU_OP_OR",
+          "direction": "parameter",
+          "width": "ALU_OP_OR"
+        },
+        {
+          "name": "ALU_OP_PASS_A",
+          "direction": "parameter",
+          "width": "ALU_OP_PASS_A"
+        },
+        {
+          "name": "ALU_OP_PASS_B",
+          "direction": "parameter",
+          "width": "ALU_OP_PASS_B"
+        },
+        {
+          "name": "ALU_SRC_REG",
+          "direction": "parameter",
+          "width": "ALU_SRC_REG"
+        },
+        {
+          "name": "ALU_SRC_IMM",
+          "direction": "parameter",
+          "width": "ALU_SRC_IMM"
+        },
+        {
+          "name": "MEM_TO_REG_ALU_RES",
+          "direction": "parameter",
+          "width": "MEM_TO_REG_ALU_RES"
+        },
+        {
+          "name": "MEM_TO_REG_MEM_DATA",
+          "direction": "parameter",
+          "width": "MEM_TO_REG_MEM_DATA"
+        },
+        {
+          "name": "BRANCH_TYPE_NONE",
+          "direction": "parameter",
+          "width": "BRANCH_TYPE_NONE"
+        },
+        {
+          "name": "BRANCH_TYPE_UNCOND",
+          "direction": "parameter",
+          "width": "BRANCH_TYPE_UNCOND"
+        },
+        {
+          "name": "BRANCH_TYPE_COND",
+          "direction": "parameter",
+          "width": "BRANCH_TYPE_COND"
+        },
+        {
+          "name": "PC_SRC_PC_PLUS_4",
+          "direction": "parameter",
+          "width": "PC_SRC_PC_PLUS_4"
+        },
+        {
+          "name": "PC_SRC_BRANCH_TARGET",
+          "direction": "parameter",
+          "width": "PC_SRC_BRANCH_TARGET"
+        },
+        {
+          "name": "PC_SRC_JUMP_TARGET",
+          "direction": "parameter",
+          "width": "PC_SRC_JUMP_TARGET"
+        },
+        {
+          "name": "instr_opcode",
+          "direction": "input",
+          "width": 11
+        },
+        {
+          "name": "instr_funct6",
+          "direction": "input",
+          "width": 6
+        },
+        {
+          "name": "instr_funct5",
+          "direction": "input",
+          "width": 5
+        },
+        {
+          "name": "instr_funct4",
+          "direction": "input",
+          "width": 4
+        },
+        {
+          "name": "instr_funct3",
+          "direction": "input",
+          "width": 3
+        },
+        {
+          "name": "instr_funct2",
+          "direction": "input",
+          "width": 2
+        },
+        {
+          "name": "instr_funct1",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "reg_write_enable",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "mem_read_enable",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "mem_write_enable",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "mem_to_reg_select",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "alu_src_select",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "alu_op_select",
+          "direction": "output",
+          "width": 3
+        },
+        {
+          "name": "branch_type",
+          "direction": "output",
+          "width": 2
+        },
+        {
+          "name": "pc_src_select",
+          "direction": "output",
+          "width": 2
+        },
+        {
+          "name": "pc_write_enable",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "imm_type_select",
+          "direction": "output",
+          "width": 2
+        }
+      ]
+    },
+    {
+      "name": "ID_EX_PipelineRegister",
+      "file": "id_ex_pipeline_register.sv",
+      "description": "Pipeline register between ID and EX stages.",
+      "dependencies": [],
+      "status": "Verified",
+      "interface": [
+        {
+          "name": "PC_WIDTH",
+          "direction": "parameter",
+          "width": "PC_WIDTH"
+        },
+        {
+          "name": "INSTR_WIDTH",
+          "direction": "parameter",
+          "width": "INSTR_WIDTH"
+        },
+        {
+          "name": "DATA_WIDTH",
+          "direction": "parameter",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "REG_ADDR_WIDTH",
+          "direction": "parameter",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "clk",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "rst_n",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "stall",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "flush",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "pc_in",
+          "direction": "input",
+          "width": "PC_WIDTH"
+        },
+        {
+          "name": "instr_in",
+          "direction": "input",
+          "width": "INSTR_WIDTH"
+        },
+        {
+          "name": "read_data1_in",
+          "direction": "input",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "read_data2_in",
+          "direction": "input",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "extended_imm_in",
+          "direction": "input",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "reg_write_enable_in",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "mem_read_enable_in",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "mem_write_enable_in",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "mem_to_reg_select_in",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "alu_src_select_in",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "alu_op_select_in",
+          "direction": "input",
+          "width": 3
+        },
+        {
+          "name": "branch_type_in",
+          "direction": "input",
+          "width": 2
+        },
+        {
+          "name": "pc_src_select_in",
+          "direction": "input",
+          "width": 2
+        },
+        {
+          "name": "pc_write_enable_in",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "reg_rd_addr_in",
+          "direction": "input",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "reg_rt_addr_in",
+          "direction": "input",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "pc_out",
+          "direction": "output",
+          "width": "PC_WIDTH"
+        },
+        {
+          "name": "instr_out",
+          "direction": "output",
+          "width": "INSTR_WIDTH"
+        },
+        {
+          "name": "read_data1_out",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "read_data2_out",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "extended_imm_out",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "reg_write_enable_out",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "mem_read_enable_out",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "mem_write_enable_out",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "mem_to_reg_select_out",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "alu_src_select_out",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "alu_op_select_out",
+          "direction": "output",
+          "width": 3
+        },
+        {
+          "name": "branch_type_out",
+          "direction": "output",
+          "width": 2
+        },
+        {
+          "name": "pc_src_select_out",
+          "direction": "output",
+          "width": 2
+        },
+        {
+          "name": "pc_write_enable_out",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "reg_rd_addr_out",
+          "direction": "output",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "reg_rt_addr_out",
+          "direction": "output",
+          "width": "REG_ADDR_WIDTH"
+        }
+      ]
+    },
+    {
+      "name": "ALU",
+      "file": "alu.sv",
+      "description": "Arithmetic Logic Unit for 64-bit operations.",
+      "dependencies": [],
+      "status": "Verified",
+      "interface": [
+        {
+          "name": "DATA_WIDTH",
+          "direction": "parameter",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "ALU_OP_ADD",
+          "direction": "parameter",
+          "width": "ALU_OP_ADD"
+        },
+        {
+          "name": "ALU_OP_SUB",
+          "direction": "parameter",
+          "width": "ALU_OP_SUB"
+        },
+        {
+          "name": "ALU_OP_AND",
+          "direction": "parameter",
+          "width": "ALU_OP_AND"
+        },
+        {
+          "name": "ALU_OP_OR",
+          "direction": "parameter",
+          "width": "ALU_OP_OR"
+        },
+        {
+          "name": "ALU_OP_PASS_A",
+          "direction": "parameter",
+          "width": "ALU_OP_PASS_A"
+        },
+        {
+          "name": "ALU_OP_PASS_B",
+          "direction": "parameter",
+          "width": "ALU_OP_PASS_B"
+        },
+        {
+          "name": "operand_a",
+          "direction": "input",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "operand_b",
+          "direction": "input",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "alu_op_code",
+          "direction": "input",
+          "width": 3
+        },
+        {
+          "name": "result",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "zero_flag",
+          "direction": "output",
+          "width": 1
+        }
+      ]
+    },
+    {
+      "name": "ForwardingUnit",
+      "file": "forwarding_unit.sv",
+      "description": "Detects data hazards and generates forwarding control signals.",
+      "dependencies": [],
+      "status": "Verified",
+      "interface": [
+        {
+          "name": "REG_ADDR_WIDTH",
+          "direction": "parameter",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "EX_RS1_addr",
+          "direction": "input",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "EX_RS2_addr",
+          "direction": "input",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "MEM_RD_addr",
+          "direction": "input",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "WB_RD_addr",
+          "direction": "input",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "MEM_RegWrite",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "WB_RegWrite",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "forward_A_select",
+          "direction": "output",
+          "width": 2
+        },
+        {
+          "name": "forward_B_select",
+          "direction": "output",
+          "width": 2
+        }
+      ]
+    },
+    {
+      "name": "HazardDetectionUnit",
+      "file": "hazard_detection_unit.sv",
+      "description": "Detects load-use hazards and control hazards, generating stall/flush signals.",
+      "dependencies": [],
+      "status": "Verified",
+      "interface": [
+        {
+          "name": "REG_ADDR_WIDTH",
+          "direction": "parameter",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "NOP_INSTR",
+          "direction": "parameter",
+          "width": "NOP_INSTR"
+        },
+        {
+          "name": "OP_LDUR",
+          "direction": "parameter",
+          "width": "OP_LDUR"
+        },
+        {
+          "name": "OP_CBZ",
+          "direction": "parameter",
+          "width": "OP_CBZ"
+        },
+        {
+          "name": "OP_B",
+          "direction": "parameter",
+          "width": "OP_B"
+        },
+        {
+          "name": "ID_EX_MemRead",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "ID_EX_RD_addr",
+          "direction": "input",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "IF_ID_RS1_addr",
+          "direction": "input",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "IF_ID_RS2_addr",
+          "direction": "input",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "EX_branch_taken",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "IF_ID_instr_opcode",
+          "direction": "input",
+          "width": 11
+        },
+        {
+          "name": "pc_stall",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "if_id_stall",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "id_ex_flush",
+          "direction": "output",
+          "width": 1
+        }
+      ]
+    },
+    {
+      "name": "EX_MEM_PipelineRegister",
+      "file": "ex_mem_pipeline_register.sv",
+      "description": "Pipeline register between EX and MEM stages.",
+      "dependencies": [],
+      "status": "Verified",
+      "interface": [
+        {
+          "name": "PC_WIDTH",
+          "direction": "parameter",
+          "width": "PC_WIDTH"
+        },
+        {
+          "name": "DATA_WIDTH",
+          "direction": "parameter",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "REG_ADDR_WIDTH",
+          "direction": "parameter",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "clk",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "rst_n",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "stall",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "flush",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "pc_in",
+          "direction": "input",
+          "width": "PC_WIDTH"
+        },
+        {
+          "name": "alu_result_in",
+          "direction": "input",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "read_data2_in",
+          "direction": "input",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "reg_write_enable_in",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "mem_read_enable_in",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "mem_write_enable_in",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "mem_to_reg_select_in",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "reg_rd_addr_in",
+          "direction": "input",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "pc_out",
+          "direction": "output",
+          "width": "PC_WIDTH"
+        },
+        {
+          "name": "alu_result_out",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "read_data2_out",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "reg_write_enable_out",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "mem_read_enable_out",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "mem_write_enable_out",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "mem_to_reg_select_out",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "reg_rd_addr_out",
+          "direction": "output",
+          "width": "REG_ADDR_WIDTH"
+        }
+      ]
+    },
+    {
+      "name": "DataMemory",
+      "file": "data_memory.sv",
+      "description": "Synthesizable synchronous RAM for data storage.",
+      "dependencies": [],
+      "status": "Pending",
+      "interface": [
+        {
+          "name": "DATA_WIDTH",
+          "direction": "parameter",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "MEM_ADDR_WIDTH",
+          "direction": "parameter",
+          "width": "MEM_ADDR_WIDTH"
+        },
+        {
+          "name": "DMEM_DEPTH",
+          "direction": "parameter",
+          "width": "DMEM_DEPTH"
+        },
+        {
+          "name": "clk",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "addr",
+          "direction": "input",
+          "width": "MEM_ADDR_WIDTH"
+        },
+        {
+          "name": "write_data",
+          "direction": "input",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "read_enable",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "write_enable",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "read_data",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        }
+      ]
+    },
+    {
+      "name": "MEM_WB_PipelineRegister",
+      "file": "mem_wb_pipeline_register.sv",
+      "description": "Pipeline register between MEM and WB stages.",
+      "dependencies": [],
+      "status": "Verified",
+      "interface": [
+        {
+          "name": "DATA_WIDTH",
+          "direction": "parameter",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "REG_ADDR_WIDTH",
+          "direction": "parameter",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "clk",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "rst_n",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "stall",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "flush",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "alu_result_in",
+          "direction": "input",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "mem_read_data_in",
+          "direction": "input",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "reg_write_enable_in",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "mem_to_reg_select_in",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "reg_rd_addr_in",
+          "direction": "input",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "alu_result_out",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "mem_read_data_out",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "reg_write_enable_out",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "mem_to_reg_select_out",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "reg_rd_addr_out",
+          "direction": "output",
+          "width": "REG_ADDR_WIDTH"
+        }
+      ]
+    },
+    {
+      "name": "LEGv8_Processor",
+      "file": "legv8_processor.sv",
+      "description": "Top-level 5-stage pipelined LEGv8 processor.",
+      "dependencies": [
+        "ProgramCounter",
+        "InstructionMemory",
+        "DataMemory",
+        "RegisterFile",
+        "SignExtend",
+        "ControlUnit",
+        "ALU",
+        "ForwardingUnit",
+        "HazardDetectionUnit",
+        "IF_ID_PipelineRegister",
+        "ID_EX_PipelineRegister",
+        "EX_MEM_PipelineRegister",
+        "MEM_WB_PipelineRegister"
+      ],
+      "status": "Pending",
+      "interface": [
+        {
+          "name": "INSTR_WIDTH",
+          "direction": "parameter",
+          "width": "INSTR_WIDTH"
+        },
+        {
+          "name": "DATA_WIDTH",
+          "direction": "parameter",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "PC_WIDTH",
+          "direction": "parameter",
+          "width": "PC_WIDTH"
+        },
+        {
+          "name": "REG_COUNT",
+          "direction": "parameter",
+          "width": "REG_COUNT"
+        },
+        {
+          "name": "REG_ADDR_WIDTH",
+          "direction": "parameter",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "MEM_ADDR_WIDTH",
+          "direction": "parameter",
+          "width": "MEM_ADDR_WIDTH"
+        },
+        {
+          "name": "IMEM_DEPTH",
+          "direction": "parameter",
+          "width": "IMEM_DEPTH"
+        },
+        {
+          "name": "DMEM_DEPTH",
+          "direction": "parameter",
+          "width": "DMEM_DEPTH"
+        },
+        {
+          "name": "IMMEDIATE_WIDTH_I_TYPE",
+          "direction": "parameter",
+          "width": "IMMEDIATE_WIDTH_I_TYPE"
+        },
+        {
+          "name": "IMMEDIATE_WIDTH_D_TYPE",
+          "direction": "parameter",
+          "width": "IMMEDIATE_WIDTH_D_TYPE"
+        },
+        {
+          "name": "IMMEDIATE_WIDTH_CB_TYPE",
+          "direction": "parameter",
+          "width": "IMMEDIATE_WIDTH_CB_TYPE"
+        },
+        {
+          "name": "IMMEDIATE_WIDTH_B_TYPE",
+          "direction": "parameter",
+          "width": "IMMEDIATE_WIDTH_B_TYPE"
+        },
+        {
+          "name": "OP_R_TYPE_ARITH",
+          "direction": "parameter",
+          "width": "OP_R_TYPE_ARITH"
+        },
+        {
+          "name": "OP_ADDI",
+          "direction": "parameter",
+          "width": "OP_ADDI"
+        },
+        {
+          "name": "OP_LDUR",
+          "direction": "parameter",
+          "width": "OP_LDUR"
+        },
+        {
+          "name": "OP_STUR",
+          "direction": "parameter",
+          "width": "OP_STUR"
+        },
+        {
+          "name": "OP_CBZ",
+          "direction": "parameter",
+          "width": "OP_CBZ"
+        },
+        {
+          "name": "OP_B",
+          "direction": "parameter",
+          "width": "OP_B"
+        },
+        {
+          "name": "ALU_FUNC_ADD",
+          "direction": "parameter",
+          "width": "ALU_FUNC_ADD"
+        },
+        {
+          "name": "ALU_FUNC_SUB",
+          "direction": "parameter",
+          "width": "ALU_FUNC_SUB"
+        },
+        {
+          "name": "ALU_FUNC_AND",
+          "direction": "parameter",
+          "width": "ALU_FUNC_AND"
+        },
+        {
+          "name": "ALU_FUNC_ORR",
+          "direction": "parameter",
+          "width": "ALU_FUNC_ORR"
+        },
+        {
+          "name": "ALU_OP_ADD",
+          "direction": "parameter",
+          "width": "ALU_OP_ADD"
+        },
+        {
+          "name": "ALU_OP_SUB",
+          "direction": "parameter",
+          "width": "ALU_OP_SUB"
+        },
+        {
+          "name": "ALU_OP_AND",
+          "direction": "parameter",
+          "width": "ALU_OP_AND"
+        },
+        {
+          "name": "ALU_OP_OR",
+          "direction": "parameter",
+          "width": "ALU_OP_OR"
+        },
+        {
+          "name": "ALU_OP_PASS_A",
+          "direction": "parameter",
+          "width": "ALU_OP_PASS_A"
+        },
+        {
+          "name": "ALU_OP_PASS_B",
+          "direction": "parameter",
+          "width": "ALU_OP_PASS_B"
+        },
+        {
+          "name": "ALU_SRC_REG",
+          "direction": "parameter",
+          "width": "ALU_SRC_REG"
+        },
+        {
+          "name": "ALU_SRC_IMM",
+          "direction": "parameter",
+          "width": "ALU_SRC_IMM"
+        },
+        {
+          "name": "MEM_TO_REG_ALU_RES",
+          "direction": "parameter",
+          "width": "MEM_TO_REG_ALU_RES"
+        },
+        {
+          "name": "MEM_TO_REG_MEM_DATA",
+          "direction": "parameter",
+          "width": "MEM_TO_REG_MEM_DATA"
+        },
+        {
+          "name": "BRANCH_TYPE_NONE",
+          "direction": "parameter",
+          "width": "BRANCH_TYPE_NONE"
+        },
+        {
+          "name": "BRANCH_TYPE_UNCOND",
+          "direction": "parameter",
+          "width": "BRANCH_TYPE_UNCOND"
+        },
+        {
+          "name": "BRANCH_TYPE_COND",
+          "direction": "parameter",
+          "width": "BRANCH_TYPE_COND"
+        },
+        {
+          "name": "PC_SRC_PC_PLUS_4",
+          "direction": "parameter",
+          "width": "PC_SRC_PC_PLUS_4"
+        },
+        {
+          "name": "PC_SRC_BRANCH_TARGET",
+          "direction": "parameter",
+          "width": "PC_SRC_BRANCH_TARGET"
+        },
+        {
+          "name": "PC_SRC_JUMP_TARGET",
+          "direction": "parameter",
+          "width": "PC_SRC_JUMP_TARGET"
+        },
+        {
+          "name": "NOP_INSTR",
+          "direction": "parameter",
+          "width": "NOP_INSTR"
+        },
+        {
+          "name": "clk",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "rst_n",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "debug_reg_file_out",
+          "direction": "output",
+          "width": "REG_COUNT * DATA_WIDTH"
+        },
+        {
+          "name": "debug_pc_out",
+          "direction": "output",
+          "width": "PC_WIDTH"
+        },
+        {
+          "name": "halt_out",
+          "direction": "output",
+          "width": 1
+        }
+      ]
+    }
+  ]
+}
