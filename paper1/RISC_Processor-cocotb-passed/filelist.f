@@ -1,0 +1,9 @@
+risc_isa_pkg.sv
+ALU.sv
+ControlUnit.sv
+DataMemory.sv
+ImmediateGenerator.sv
+InstructionMemory.sv
+ProgramCounter.sv
+RegisterFile.sv
+RISC_Processor.sv

@@ -1,0 +1,411 @@
+{
+  "projectName": "Lev8SingleCycleProcessor",
+  "parameters": {
+    "DATA_WIDTH": 8,
+    "ADDRESS_WIDTH": 8,
+    "INSTRUCTION_WIDTH": 16,
+    "REG_ADDR_WIDTH": 3,
+    "OPCODE_WIDTH": 4,
+    "ALU_OP_WIDTH": 3,
+    "IMMEDIATE_WIDTH": 6,
+    "JUMP_ADDR_WIDTH": 12,
+    "PC_INCREMENT_VAL": 2
+  },
+  "components": [
+    {
+      "name": "ProgramCounter",
+      "file": "program_counter.sv",
+      "description": "Holds the address of the current instruction and updates it based on control signals.",
+      "dependencies": [],
+      "status": "Validating",
+      "interface": [
+        {
+          "name": "clk",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "rst",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "pc_next_addr",
+          "direction": "input",
+          "width": "ADDRESS_WIDTH"
+        },
+        {
+          "name": "pc_out",
+          "direction": "output",
+          "width": "ADDRESS_WIDTH"
+        }
+      ]
+    },
+    {
+      "name": "InstructionMemory",
+      "file": "instruction_memory.sv",
+      "description": "Stores instructions and provides them based on the program counter's address.",
+      "dependencies": [],
+      "status": "Validating",
+      "interface": [
+        {
+          "name": "clk",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "addr",
+          "direction": "input",
+          "width": "ADDRESS_WIDTH"
+        },
+        {
+          "name": "instruction",
+          "direction": "output",
+          "width": "INSTRUCTION_WIDTH"
+        }
+      ]
+    },
+    {
+      "name": "ControlUnit",
+      "file": "control_unit.sv",
+      "description": "Decodes the instruction's opcode and generates all necessary control signals for the datapath.",
+      "dependencies": [],
+      "status": "Validating",
+      "interface": [
+        {
+          "name": "opcode",
+          "direction": "input",
+          "width": "OPCODE_WIDTH"
+        },
+        {
+          "name": "reg_write_en",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "mem_write_en",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "mem_read_en",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "alu_src_sel",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "mem_to_reg_sel",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "branch_en",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "jump_en",
+          "direction": "output",
+          "width": 1
+        },
+        {
+          "name": "alu_op",
+          "direction": "output",
+          "width": "ALU_OP_WIDTH"
+        },
+        {
+          "name": "pc_src_sel",
+          "direction": "output",
+          "width": 2
+        }
+      ]
+    },
+    {
+      "name": "RegisterFile",
+      "file": "register_file.sv",
+      "description": "Stores general-purpose registers and provides read/write access based on addresses and control signals.",
+      "dependencies": [],
+      "status": "Validating",
+      "interface": [
+        {
+          "name": "clk",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "rst",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "read_addr1",
+          "direction": "input",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "read_addr2",
+          "direction": "input",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "write_addr",
+          "direction": "input",
+          "width": "REG_ADDR_WIDTH"
+        },
+        {
+          "name": "write_data",
+          "direction": "input",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "write_en",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "read_data1",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "read_data2",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        }
+      ]
+    },
+    {
+      "name": "ALU",
+      "file": "alu.sv",
+      "description": "Performs arithmetic and logical operations on two data inputs based on the ALU operation code.",
+      "dependencies": [],
+      "status": "Validating",
+      "interface": [
+        {
+          "name": "src1",
+          "direction": "input",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "src2",
+          "direction": "input",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "alu_op",
+          "direction": "input",
+          "width": "ALU_OP_WIDTH"
+        },
+        {
+          "name": "result",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "zero",
+          "direction": "output",
+          "width": 1
+        }
+      ]
+    },
+    {
+      "name": "DataMemory",
+      "file": "data_memory.sv",
+      "description": "Stores and retrieves data from memory based on address and control signals.",
+      "dependencies": [],
+      "status": "Validating",
+      "interface": [
+        {
+          "name": "clk",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "addr",
+          "direction": "input",
+          "width": "ADDRESS_WIDTH"
+        },
+        {
+          "name": "write_data",
+          "direction": "input",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "write_en",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "read_en",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "read_data",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        }
+      ]
+    },
+    {
+      "name": "SignExtender",
+      "file": "sign_extender.sv",
+      "description": "Extends a smaller immediate value to the full data width, preserving its sign.",
+      "dependencies": [],
+      "status": "Validating",
+      "interface": [
+        {
+          "name": "in_val",
+          "direction": "input",
+          "width": "IMMEDIATE_WIDTH"
+        },
+        {
+          "name": "out_val",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        }
+      ]
+    },
+    {
+      "name": "Mux2to1",
+      "file": "mux2to1.sv",
+      "description": "A generic 2-to-1 multiplexer, used for selecting between two data paths.",
+      "dependencies": [],
+      "status": "Validating",
+      "interface": [
+        {
+          "name": "in0",
+          "direction": "input",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "in1",
+          "direction": "input",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "sel",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "out",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        }
+      ]
+    },
+    {
+      "name": "Mux3to1",
+      "file": "mux3to1.sv",
+      "description": "A generic 3-to-1 multiplexer, used for selecting the next PC address.",
+      "dependencies": [],
+      "status": "Validating",
+      "interface": [
+        {
+          "name": "in0",
+          "direction": "input",
+          "width": "ADDRESS_WIDTH"
+        },
+        {
+          "name": "in1",
+          "direction": "input",
+          "width": "ADDRESS_WIDTH"
+        },
+        {
+          "name": "in2",
+          "direction": "input",
+          "width": "ADDRESS_WIDTH"
+        },
+        {
+          "name": "sel",
+          "direction": "input",
+          "width": 2
+        },
+        {
+          "name": "out",
+          "direction": "output",
+          "width": "ADDRESS_WIDTH"
+        }
+      ]
+    },
+    {
+      "name": "Adder",
+      "file": "adder.sv",
+      "description": "A generic N-bit adder, used for PC increment and branch target calculation.",
+      "dependencies": [],
+      "status": "Validating",
+      "interface": [
+        {
+          "name": "in1",
+          "direction": "input",
+          "width": "ADDRESS_WIDTH"
+        },
+        {
+          "name": "in2",
+          "direction": "input",
+          "width": "ADDRESS_WIDTH"
+        },
+        {
+          "name": "sum",
+          "direction": "output",
+          "width": "ADDRESS_WIDTH"
+        }
+      ]
+    },
+    {
+      "name": "Lev8SingleCycleProcessor",
+      "file": "lev8_single_cycle_processor.sv",
+      "description": "Top-level module for the simple single-cycle Lev8 processor, integrating all sub-components.",
+      "dependencies": [
+        "ProgramCounter",
+        "InstructionMemory",
+        "ControlUnit",
+        "RegisterFile",
+        "ALU",
+        "DataMemory",
+        "SignExtender",
+        "Mux2to1",
+        "Mux3to1",
+        "Adder"
+      ],
+      "status": "Pending",
+      "interface": [
+        {
+          "name": "clk",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "rst",
+          "direction": "input",
+          "width": 1
+        },
+        {
+          "name": "debug_pc_out",
+          "direction": "output",
+          "width": "ADDRESS_WIDTH"
+        },
+        {
+          "name": "debug_instruction_out",
+          "direction": "output",
+          "width": "INSTRUCTION_WIDTH"
+        },
+        {
+          "name": "debug_alu_result",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        },
+        {
+          "name": "debug_reg_write_data",
+          "direction": "output",
+          "width": "DATA_WIDTH"
+        }
+      ]
+    }
+  ]
+}
