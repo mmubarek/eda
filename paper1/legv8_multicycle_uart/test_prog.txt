@@ -1,0 +1,22 @@
+910193E1    // ADDI X1, XZR, #100
+9100CBE2    // ADDI X2, XZR, #50
+91000FE9    // ADDI X9, XZR, #3       ; Loop counter
+8B020023    // ADD  X3, X1, X2        ; X3 = 150
+CB020024    // SUB  X4, X1, X2        ; X4 = 50
+8A020025    // AND  X5, X1, X2        ; X5 = 32
+AA020026    // ORR  X6, X1, X2        ; X6 = 118
+4A020027    // EOR  X7, X1, X2        ; X7 = 86
+910053EC    // ADDI X12, XZR, #20     ; Base address for STUR/LDUR
+F8004183    // STUR X3, [X12, #4]     ; Store 150 at address 24
+
+D1002821    // LOOP_START: SUBI X1, X1, #10
+D1000529    // SUBI X9, X9, #1
+B5FFFFC9    // CBNZ X9, LOOP_START (offset -2)
+
+F840418D    // LDUR X13, [X12, #4]    ; Load 150 into X13
+94000003    // BL   SUBROUTINE (at IMEM[17])
+8B1401AE    // ADD X14, X13, X20      ; X14 = 150 + 999 = 1149
+FFE00000    // HALT
+
+910F9FF4    // SUBROUTINE: ADDI X20, XZR, #999
+D61F03C0    // BR LR

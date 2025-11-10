@@ -11,6 +11,8 @@
 
 
 ## List of simple cpus generated using our agentic tool with human in the loop
+* legv8_multicycle_uart
+  - this contains a multicycle legv8 like 32-bit processor. It is tested on DE-10 lite board via uart. Check the README.md in the corresponding directory. Signficant change is made espeically to test with uart.
 * LegV8SingleCycleProcessor-synt-cocov2
   - this contains a very simple LegV8 like processor. It is tested with cocotb.
 * RISC_Processor-cocotb-passed
